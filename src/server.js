@@ -1,10 +1,11 @@
-const { v4: uuidv4 } = require('uuid');
 const { broker, server, ws } = require('./setup');
 
 ws.on('request', async function(request) {
   const connection = request.accept(request.origin);
 
-  broker.emit('user.connected', { connectionId: uuidv4() });
+  const [userConnection] = await broker.emit('user.connected');
+
+  connection.send(JSON.stringify(userConnection));
 
   connection.on('message', function(message) {
     try {

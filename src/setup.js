@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const { ServiceBroker } = require('moleculer');
+const route = require('./api');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,10 +12,8 @@ ws = new WebSocketServer({
   httpServer: server,
 });
 
-broker.loadService('./src/services/user.service');
+app.use(route);
 
-app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello World' });
-});
+broker.loadServices(folder = `${__dirname}/services`, fileMask = '**/*');
 
 module.exports = { broker, server, ws };
