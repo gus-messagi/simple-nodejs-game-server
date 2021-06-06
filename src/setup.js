@@ -37,11 +37,12 @@ ws.on('request', async (request) => {
       const messageJSON = JSON.parse(message.utf8Data);
 
       const response = await broker.emit(messageJSON.type);
+      console.log(response);
       connection.send(JSON.stringify(response));
 
       ws.connections.forEach((_connection) => {
         if (_connection !== connection) {
-          _connection.send(JSON.stringify(message.utf8Data));
+          _connection.send(message.utf8Data);
         }
       });
     } catch (error) {
@@ -51,6 +52,6 @@ ws.on('request', async (request) => {
   });
 });
 
-broker.loadServices(`${__dirname}/services`, '**/*');
+broker.loadServices(`${__dirname}/services`, '**/index.js');
 
 module.exports = { broker, server };
