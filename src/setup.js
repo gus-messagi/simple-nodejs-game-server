@@ -14,6 +14,43 @@ const ws = new WebSocketServer({
 
 app.use(route);
 
+/** @FIXME
+ * TODO: Find a better way to handle this webSocket, seeking to improve code reading
+*/
+ws.on('request', async (request) => {
+  const connection = request.accept(request.origin);
+
+  const [userConnection] = await broker.emit('user.connected');
+
+  connection.send(JSON.stringify(userConnection));
+
+  connection.on('message', async (message) => {
+    try {
+      /** @DOCUMENTATION
+       * * Property data from message
+       * {
+       *    type: event
+       *    data: object
+       *    connectionId: string
+       * }
+       */
+      const messageJSON = JSON.parse(message.utf8Data);
+
+      const response = await broker.emit(messageJSON.type);
+      connection.send(JSON.stringify(response));
+
+      ws.connections.forEach((_connection) => {
+        if (_connection !== connection) {
+          _connection.send(JSON.stringify(message.utf8Data));
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      connection.send(JSON.stringify({ message: 'Error' }));
+    }
+  });
+});
+
 broker.loadServices(`${__dirname}/services`, '**/*');
 
-module.exports = { broker, server, ws };
+module.exports = { broker, server };

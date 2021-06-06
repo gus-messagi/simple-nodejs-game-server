@@ -15,4 +15,4 @@ Microservices through [MoleculerJS](https://moleculer.services/)<br>
 * [ ] Handle errors
 * [ ] User service
 * [ ] Auth service
-* [ ] Handle multiple connections
+* [X] Handle multiple connections
