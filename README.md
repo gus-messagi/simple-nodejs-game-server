@@ -13,5 +13,6 @@ Microservices through [MoleculerJS](https://moleculer.services/)<br>
 ## TODO
 
 * [ ] Handle errors
-* [ ] User services regarding FPS 
+* [ ] User service
+* [ ] Auth service
 * [ ] Handle multiple connections
