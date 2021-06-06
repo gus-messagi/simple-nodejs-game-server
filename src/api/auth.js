@@ -8,4 +8,4 @@ module.exports = (app) => {
   route.post('/', (req, res) => {
     res.status(201).json({ message: 'User created' });
   });
-}; 
+};

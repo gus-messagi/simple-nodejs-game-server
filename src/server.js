@@ -1,18 +1,17 @@
 const { broker, server, ws } = require('./setup');
 
-ws.on('request', async function(request) {
+ws.on('request', async (request) => {
   const connection = request.accept(request.origin);
 
   const [userConnection] = await broker.emit('user.connected');
 
   connection.send(JSON.stringify(userConnection));
 
-  connection.on('message', function(message) {
+  connection.on('message', (message) => {
     try {
       const messageJSON = JSON.parse(message.utf8Data);
       console.log(messageJSON);
-    }
-    catch (error) {
+    } catch (error) {
       console.error(error);
     }
   });

@@ -8,12 +8,12 @@ const app = express();
 const server = http.createServer(app);
 const broker = new ServiceBroker();
 
-ws = new WebSocketServer({
+const ws = new WebSocketServer({
   httpServer: server,
 });
 
 app.use(route);
 
-broker.loadServices(folder = `${__dirname}/services`, fileMask = '**/*');
+broker.loadServices(`${__dirname}/services`, '**/*');
 
 module.exports = { broker, server, ws };
