@@ -1,5 +1,5 @@
-const { Router } = require('express');
-const auth = require('./auth');
+import { Router } from 'express';
+import auth from './auth';
 
 const route = Router();
 

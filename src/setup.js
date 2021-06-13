@@ -1,8 +1,8 @@
-const express = require('express');
-const http = require('http');
-const WebSocketServer = require('websocket').server;
-const { ServiceBroker } = require('moleculer');
-const route = require('./api');
+import express from 'express';
+import http from 'http';
+import { server as WebSocketServer } from 'websocket';
+import { ServiceBroker } from 'moleculer';
+import route from './api';
 
 const app = express();
 const server = http.createServer(app);
@@ -12,6 +12,8 @@ const ws = new WebSocketServer({
   httpServer: server,
 });
 
+const players = [];
+
 app.use(route);
 
 /** @FIXME
@@ -20,9 +22,16 @@ app.use(route);
 ws.on('request', async (request) => {
   const connection = request.accept(request.origin);
 
-  const [userConnection] = await broker.emit('user.connected');
+  const [newPlayerConnection] = await broker.emit('player.connected');
 
-  connection.send(JSON.stringify(userConnection));
+  connection.send(JSON.stringify(newPlayerConnection));
+
+  players.push({
+    connection,
+    connectionId: newPlayerConnection.connectionId,
+    life: 100,
+    damage: 10,
+  });
 
   connection.on('message', async (message) => {
     try {
@@ -36,13 +45,13 @@ ws.on('request', async (request) => {
        */
       const messageJSON = JSON.parse(message.utf8Data);
 
-      const response = await broker.emit(messageJSON.type);
-      console.log(response);
+      const response = await broker.emit(messageJSON.type, messageJSON);
+
       connection.send(JSON.stringify(response));
 
-      ws.connections.forEach((_connection) => {
-        if (_connection !== connection) {
-          _connection.send(message.utf8Data);
+      players.forEach((player) => {
+        if (player.connection !== connection) {
+          player.connection.send(message.utf8Data);
         }
       });
     } catch (error) {
@@ -52,6 +61,6 @@ ws.on('request', async (request) => {
   });
 });
 
-broker.loadServices(`${__dirname}/services`, '**/index.js');
+broker.loadServices(`${__dirname}/services`, '*/index.js');
 
-module.exports = { broker, server };
+export { broker, server };
